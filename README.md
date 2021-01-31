@@ -21,14 +21,21 @@ You have two options for uploading the model.
 ### Further Training the Model
 
 If the model innacurately classifies the stream (or even if you want to train your own model from scratch, for examples, for NFL streams) you can further train the model yourself. At the bottom of your web page, the script appends classified images with their scores. If you click on any of these images your browser will prompt you - select "OK" to indicate the image is of an active NBA game, or select "Cancel" to indicate the image is <strong>not</strong> of an active NBA game. You can also trigger a classification manually by typing `c`, and again, clicking the image at the bottom of the page. 
+
 Once you have collected the data you'd like, type `s` to prompt the browser, and select `cancel` to download the data. Then, at the top of script.js set `shouldLoadModel = true` to only load the data (or if you're using the manual process, simply don't upload the model files). Then, type `t` to train a new model based on this data. You will be prompted once this training has completed. Type `s` again, and this time select `OK` to download the newly trained model files.
 
 ## Hotkeys
 
 f - Puts the video into fullscreen (see the handleKeyDown method of script.js if the document selector does not work for your streaming site).
+
 m - Mutes the video (see the handleKeyDown method of script.js if the document selector does not work for your streaming site).
+
 y - Adds the currently displayed image on the video stream to the collection of data for the model under 'y' indicating that the image is of an active NBA game.
+
 n - Adds the currently displayed image on the video stream to the collection of data for the model under 'n' indicating that the image is <strong>not</strong> of an active NBA game.
+
 t - Initiate training of the model with the uploaded data (note that a trained model must not have been uploaded for this command to work).
+
 c - Classify the currently displayed image on the video stream. The image will be appended to the bottom of the page along with its clasification and score.
+
 s - Initiate a browser prompt - select "OK" to download the trained model files, or select "Cancel" to download the data files.
