@@ -1,11 +1,13 @@
 # NBA Detector
 
 A TamperMonkey script for detecting NBA games, so you never need to watch a mid-game commercial again.
+
 During a commercial break, mute your stream and put the tab in the background. Whenever the game comes back on, the stream will automatically unmute itself using an ML5 model trained to detect live games.
 
 ## Getting Started
 
 Download TamperMonkey for Chrome [here](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en).
+
 Add the contents of script.js to your installed userscripts on the TamperMonkey dashboard. At the top of the file, add as many `@include` tags as you'd like for any sites where you watch NBA streams in order for the script to run on those sites.
 
 ### Uploading the Model
