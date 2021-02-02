@@ -10,6 +10,7 @@
 
 const shouldLoadModel = true;
 const manualUpload = false;
+const shouldCaptureScreen = false;
 
 const style = document.createElement('style');
 style.innerHTML = `
@@ -52,7 +53,17 @@ let permaMute = false;
 
 const toggleMute = () => {
     const elem = document.querySelectorAll("[class*='media-control-icon'][data-volume]")[0];
-    elem.click();
+    if (!elem) {
+        if (video.volume === 0 || video.muted) {
+            video.volume = 1;
+            video.muted = false;
+        } else {
+            video.volume = 0;
+            video.muted = true;
+        }
+    } else {
+        elem.click();
+    }
 };
 
 const getIFrame = (doc) => {
@@ -98,6 +109,7 @@ const displayCanvases = true;
 const dim = 128;
 let model;
 let video;
+let screenVideo;
 let ffmpeg;
 let canvasContainer;
 let currCanvas = 0;
@@ -134,25 +146,29 @@ const getInputs = async (fromVideo = false) => {
     const canvas = createCanvas(currCanvas);
     const context = canvas.getContext('2d');
 
-    if (fromVideo) {
-        context.drawImage(video, 0, 0, dim, dim);
+    if (shouldCaptureScreen) {
+        context.drawImage(screenVideo, 0, 0, dim, dim);
     } else {
-        const entries = window.performance.getEntriesByType("resource").filter(e => e.name && e.name.endsWith('ts'));
-        if (window.performance.getEntries().length > 100) {
-            performance.clearResourceTimings();
+        if (fromVideo) {
+            context.drawImage(video, 0, 0, dim, dim);
+        } else {
+            const entries = window.performance.getEntriesByType("resource").filter(e => e.name && e.name.endsWith('ts'));
+            if (window.performance.getEntries().length > 100) {
+                performance.clearResourceTimings();
+            }
+            const url = entries[entries.length - 1].name;
+            console.log(`reading entry ${url}`);
+            const blob = await fetch(url).then(res => res.blob());
+            const data = new Uint8Array(await blob.arrayBuffer());
+            ffmpeg.FS('writeFile', 'stream.ts', data);
+            await ffmpeg.run('-i', 'stream.ts', 'stream.jpg', '-update', '1');
+            const file = ffmpeg.FS('readFile', 'stream.jpg');
+            const jpegBlob = new Blob([file]);
+            const bitmap = await createImageBitmap(jpegBlob);
+            const jpegUrl = URL.createObjectURL(jpegBlob);
+            context.drawImage(bitmap, 0, 0, dim, dim);
+            ffmpeg.FS('unlink', 'stream.jpg');
         }
-        const url = entries[entries.length - 1].name;
-        console.log(`reading entry ${url}`);
-        const blob = await fetch(url).then(res => res.blob());
-        const data = new Uint8Array(await blob.arrayBuffer());
-        ffmpeg.FS('writeFile', 'stream.ts', data);
-        await ffmpeg.run('-i', 'stream.ts', 'stream.jpg', '-update', '1');
-        const file = ffmpeg.FS('readFile', 'stream.jpg');
-        const jpegBlob = new Blob([file]);
-        const bitmap = await createImageBitmap(jpegBlob);
-        const jpegUrl = URL.createObjectURL(jpegBlob);
-        context.drawImage(bitmap, 0, 0, dim, dim);
-        ffmpeg.FS('unlink', 'stream.jpg');
     }
 
     const inputs = getInputsFromContext(context);
@@ -357,10 +373,23 @@ const initModel = async () => {
     const dataF = new File([dataB], 'ml5_basketball_model_data.json');
     const dataList = new DataTransfer();
     dataList.items.add(dataF);
-    model.loadData(dataList.files, () => {
+    model.loadData(dataList.files, async () => {
         dataLoaded = true;
         if (modelLoaded || !shouldLoadModel) {
-            alert('Ready');
+            if (shouldCaptureScreen) {
+                screenVideo = document.createElement('video');
+                const displayMediaOptions = {
+                    video: {
+                        cursor: "never"
+                    },
+                    audio: false
+                }
+
+                screenVideo.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+                await screenVideo.play();
+            } else {
+                alert('Ready');
+            }
             startInterval();
         }
         console.log('Data Loaded');
@@ -413,7 +442,7 @@ const createModal = async () => {
 };
 
 let interval = setInterval(() => {
-    video = document.getElementsByTagName('video')[0];
+    video = [...document.getElementsByTagName('video')].filter(v => v.videoWidth > 0 && !v.id.includes('advideo'))[0];
     if (video && tensorLoaded && ffmpegLoaded) {
         clearInterval(interval);
         video.muted = true;

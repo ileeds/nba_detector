@@ -26,6 +26,10 @@ If the model innacurately classifies the stream (or even if you want to train yo
 
 Once you have collected the data you'd like, type `s` to prompt the browser, and select `cancel` to download the data. Then, at the top of script.js set `shouldLoadModel = true` to only load the data (or if you're using the manual process, simply don't upload the model files). Then, type `t` to train a new model based on this data. You will be prompted once this training has completed. Type `s` again, and this time select `OK` to download the newly trained model files.
 
+### Screen Capture
+
+If the video is streamed from a cross-origin iframe, the default setup may not work. At the top of script.js set `shouldCaptureScreen = true`, and when prompted, select the chrome tab you are streaming from. For best results, put the video player into fullscreen.
+
 ## Hotkeys
 
 f - Puts the video into fullscreen (see the handleKeyDown method of script.js if the document selector does not work for your streaming site).
