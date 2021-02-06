@@ -455,7 +455,7 @@ let videoInterval = setInterval(() => {
         if (!initTraining) {
             video.muted = true;
             video.click();
-            toggleMute();
+            video.muted = false;
         }
 
         if (manualUpload) {
