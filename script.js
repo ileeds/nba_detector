@@ -8,7 +8,7 @@
 // @grant        none
 // ==/UserScript==
 
-const shouldLoadModel = true;
+const initTraining = new URLSearchParams(window.location.search).get('train') === '1';
 const manualUpload = false;
 const shouldCaptureScreen = false;
 
@@ -228,6 +228,14 @@ const classify = async (callback, fromVideo = false) => {
     model.classify(inputs, callback);
 };
 
+const trainModel = () => {
+    console.log('Initiated Training');
+    model.train({ epochs: 125 }, () => {
+        console.log('Finished Training');
+        model.save('ml5_basketball_model');
+    });
+};
+
 const handleKeyDown = (event) => {
     const key = event.key;
     if (key === 'f') {
@@ -239,20 +247,12 @@ const handleKeyDown = (event) => {
         permaMute = ctrl;
     } else if (key === 'y' || key === 'n') {
         addExample(key);
-    } else if (key === 't') {
-        console.log('initiated training');
-        model.train({ epochs: 100 }, () => {
-            console.log('finished training');
-            alert('Finished');
-        });
     } else if (key === 'c') {
         classify(gotResults, true);
-    } else if (key === 's') {
-        if (confirm('Model ready?')) {
-            model.save('ml5_basketball_model');
-        } else {
-            model.saveData('ml5_basketball_model_data');
-        }
+    } else if (key === 't') {
+        trainModel();
+    } else if (key === 's' && event.ctrlKey) {
+        model.saveData('ml5_basketball_model_data');
     }
 };
 document.addEventListener('keydown', handleKeyDown);
@@ -284,13 +284,15 @@ const startInterval = async () => {
 
     setInterval(async () => {
         if (!isTabActive && !permaMute) {
-            if (video.readyState < video.HAVE_FUTURE_DATA) {
-                if (beepCounter < 5) {
-                    beep();
-                    beepCounter+=1;
+            if (!initTraining) {
+                if (video.readyState < video.HAVE_FUTURE_DATA) {
+                    if (beepCounter < 5) {
+                        beep();
+                        beepCounter+=1;
+                    }
+                } else {
+                    beepCounter = 0;
                 }
-            } else {
-                beepCounter = 0;
             }
             if (isMuted()) {
                 classify(detectGame);
@@ -352,7 +354,7 @@ const initModel = async () => {
     const [metaR, modelR, weightsR, dataR] = await Promise.all([metaP, modelP, weightsP, dataP]);
     const [metaB, modelB, weightsB, dataB] = await Promise.all([metaR.blob(), modelR.blob(), weightsR.blob(), dataR.blob()]);
 
-    if (shouldLoadModel) {
+    if (!initTraining) {
         const metaF = new File([metaB], 'ml5_basketball_model_meta.json');
         const modelF = new File([modelB], 'ml5_basketball_model.json');
         const weightsF = new File([weightsB], 'ml5_basketball_model.weights.bin');
@@ -360,22 +362,27 @@ const initModel = async () => {
         modelList.items.add(metaF);
         modelList.items.add(modelF);
         modelList.items.add(weightsF);
+        console.log('Loading Model');
         model.load(modelList.files, () => {
             modelLoaded = true;
+            console.log('Model Loaded');
             if (dataLoaded) {
                 alert('Ready');
                 startInterval();
             }
-            console.log('Model Loaded');
         });
     }
 
     const dataF = new File([dataB], 'ml5_basketball_model_data.json');
     const dataList = new DataTransfer();
     dataList.items.add(dataF);
+    console.log('Loading Data');
     model.loadData(dataList.files, async () => {
         dataLoaded = true;
-        if (modelLoaded || !shouldLoadModel) {
+        console.log('Data Loaded');
+        if (initTraining) {
+            trainModel();
+        } else if (modelLoaded) {
             if (shouldCaptureScreen) {
                 screenVideo = document.createElement('video');
                 const displayMediaOptions = {
@@ -392,7 +399,6 @@ const initModel = async () => {
             }
             startInterval();
         }
-        console.log('Data Loaded');
     });
 };
 
@@ -441,13 +447,16 @@ const createModal = async () => {
     });
 };
 
-let interval = setInterval(() => {
-    video = [...document.getElementsByTagName('video')].filter(v => v.videoWidth > 0 && !v.id.includes('advideo'))[0];
+let videoInterval = setInterval(() => {
+    video = [...document.getElementsByTagName('video')].filter(v => v.offsetWidth > 0 && !v.id.includes('advideo'))[0];
     if (video && tensorLoaded && ffmpegLoaded) {
-        clearInterval(interval);
-        video.muted = true;
-        video.click();
-        video.muted = false;
+        console.log('Found Video', video);
+        clearInterval(videoInterval);
+        if (!initTraining) {
+            video.muted = true;
+            video.click();
+            toggleMute();
+        }
 
         if (manualUpload) {
             createModal();

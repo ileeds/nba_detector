@@ -17,14 +17,14 @@ The model data file is named `ml5_basketball_model_data.json`.
 
 You have two options for uploading the model.
 
-1. Host a simple HTTP server at port 8080 serving the model files - a simple solution is to run [http-server](https://www.npmjs.com/package/http-server) in a directory with these files. The browser will alert you when the model has loaded.
+1. Host an HTTP server at port 8080 serving the model files - a simple solution is to run [http-server](https://www.npmjs.com/package/http-server) in a directory with these files. The browser will alert you when the model has loaded.
 2. Set `manualUpload = true` at the top of script.js. You will instead be prompted to upload the files manually by a modal. The text of the modal will change to indicate the model has loaded when ready.
 
 ### Further Training the Model
 
-If the model innacurately classifies the stream (or even if you want to train your own model from scratch, for examples, for NFL streams) you can further train the model yourself. At the bottom of your web page, the script appends classified images with their scores. If you click on any of these images your browser will prompt you - select "OK" to indicate the image is of an active NBA game, or select "Cancel" to indicate the image is <strong>not</strong> of an active NBA game. You can also trigger a classification manually by typing `c`, and again, clicking the image at the bottom of the page. 
+If the model innacurately classifies the stream, you can further train the model yourself - or even train your own model from scratch (for example, for NFL streams). At the bottom of your web page, the script appends classified images with their scores. If you click on any of these images your browser will prompt you - select "OK" to indicate the image is of an active NBA game, or select "Cancel" to indicate the image is <strong>not</strong> of an active NBA game. You can also trigger a classification manually by typing `c`, and again, clicking the image at the bottom of the page. 
 
-Once you have collected the data you'd like, type `s` to prompt the browser, and select `cancel` to download the data. Then, at the top of script.js set `shouldLoadModel = true` to only load the data (or if you're using the manual process, simply don't upload the model files). Then, type `t` to train a new model based on this data. You will be prompted once this training has completed. Type `s` again, and this time select `OK` to download the newly trained model files.
+Once you have collected the data you'd like, type `ctrl + s` to download the data. Then, reload the page, but append the url parameter `train=1` (or if you're using the manual upload process, reload the page and only upload the data file, and then type `t`). This will initiate training of a new model based on this data. Once complete, the newly trained model files will be downloaded.
 
 ### Screen Capture
 
@@ -44,4 +44,4 @@ t - Initiate training of the model with the uploaded data (note that a trained m
 
 c - Classify the currently displayed image on the video stream. The image will be appended to the bottom of the page along with its clasification and score.
 
-s - Initiate a browser prompt - select "OK" to download the trained model files, or select "Cancel" to download the data files.
+ctrl + s - Download the model data file.
