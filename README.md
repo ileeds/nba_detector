@@ -36,6 +36,8 @@ f - Puts the video into fullscreen (see the handleKeyDown method of script.js if
 
 m - Mutes the video (see the handleKeyDown method of script.js if the document selector does not work for your streaming site).
 
+ctrl + m - "Permanently" mutes the video (the background classification won't run to automatically unmute the video - you can re-enable auto-unmute by just typing `m`).
+
 y - Adds the currently displayed image on the video stream to the collection of data for the model under 'y' indicating that the image is of an active NBA game.
 
 n - Adds the currently displayed image on the video stream to the collection of data for the model under 'n' indicating that the image is <strong>not</strong> of an active NBA game.
