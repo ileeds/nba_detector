@@ -137,6 +137,8 @@ const createCanvas = (num) => {
     return canvas;
 };
 
+let ffmpegLocked = false;
+
 const getInputs = async (fromVideo = false) => {
     currCanvas += 1;
     if (currCanvas === 6) {
@@ -152,6 +154,11 @@ const getInputs = async (fromVideo = false) => {
         if (fromVideo) {
             context.drawImage(video, 0, 0, dim, dim);
         } else {
+            if (ffmpegLocked) {
+                console.log('FFMpeg Locked - Must Wait');
+                beep();
+                return null;
+            }
             const entries = window.performance.getEntriesByType("resource").filter(e => e.name && e.name.endsWith('ts'));
             if (window.performance.getEntries().length > 100) {
                 performance.clearResourceTimings();
@@ -161,7 +168,9 @@ const getInputs = async (fromVideo = false) => {
             const blob = await fetch(url).then(res => res.blob());
             const data = new Uint8Array(await blob.arrayBuffer());
             ffmpeg.FS('writeFile', 'stream.ts', data);
+            ffmpegLocked = true;
             await ffmpeg.run('-i', 'stream.ts', 'stream.jpg', '-update', '1');
+            ffmpegLocked = false;
             const file = ffmpeg.FS('readFile', 'stream.jpg');
             const jpegBlob = new Blob([file]);
             const bitmap = await createImageBitmap(jpegBlob);
@@ -184,6 +193,9 @@ const getInputs = async (fromVideo = false) => {
 
 const addExample = async (label) => {
     const inputs = await getInputs(true);
+    if (!inputs) {
+        return;
+    }
     const target = { label };
     console.log('adding example: ' + label);
     model.addData(inputs, target);
@@ -224,7 +236,9 @@ const detectGame = (error, results) => {
 
 const classify = async (callback, fromVideo = false) => {
     const inputs = await getInputs(fromVideo);
-
+    if (!inputs) {
+        return;
+    }
     model.classify(inputs, callback);
 };
 
