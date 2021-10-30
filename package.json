@@ -1,0 +1,29 @@
+{
+  "name": "nba_detector",
+  "version": "1.0.0",
+  "description": "A TamperMonkey script for detecting NBA games, so you never need to watch a mid-game commercial again.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --experimental-wasm-threads server.js",
+    "train": "node --max-old-space-size=4096 trainer.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ileeds/nba_detector.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ileeds/nba_detector/issues"
+  },
+  "homepage": "https://github.com/ileeds/nba_detector#readme",
+  "dependencies": {
+    "@ffmpeg/core": "^0.10.0",
+    "@ffmpeg/ffmpeg": "^0.10.1",
+    "@tensorflow/tfjs-node": "^3.11.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.1",
+    "node-pre-gyp": "^0.17.0"
+  }
+}
