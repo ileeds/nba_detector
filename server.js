@@ -2,15 +2,25 @@ const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
 const { createFFmpeg } = require('@ffmpeg/ffmpeg');
+const xlsx = require('xlsx');
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
+
+const quoteKey = 'Motivational Quotes Database - https://www.sharpquotes.com';
+const authorKey = '';
+const workbook = xlsx.readFile('./models/quotes.xlsx');
+const quotes = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+const getRandomQuote = () => {
+  const quoteRow = quotes[Math.floor(Math.random() * (quotes.length - 1))];
+  return `"${quoteRow[quoteKey]}" - ${quoteRow[authorKey]}`;
+};
 
 const app = express();
 const port = 3000;
 
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
-})
+});
 
 app.use(cors());
 
@@ -72,7 +82,7 @@ app.get('/getJpeg', function(req, res) {
       await ffmpeg.FS('unlink', 'stream.jpg');
 
       res.send({ jpg: file });
-      console.log('success');
+      console.log(getRandomQuote());
     } catch (e) {
       console.log(e);
       res.status(500);
