@@ -6,8 +6,8 @@ const imageWidth = 128;
 const imageHeight = 128;
 const imageChannels = 3;
 
-const batchSize = 32;
-const epochsValue = 100;
+const batchSize = 64;
+const epochsValue = 200;
 const learningRate = 0.02;
 
 const loadData = function (dataUrl) {
