@@ -44,7 +44,7 @@ app.get('/models/:modelPath/weights.bin', (req, res) => {
 app.get('/getJpeg', function(req, res) {
   (async () => {
     if (ffmpegLocked) {
-      res.status(400).json({ error: 'ffmpegLocked' });
+      res.status(400).json({ error: 'FFmpeg locked' });
       return;
     }
   
@@ -60,7 +60,7 @@ app.get('/getJpeg', function(req, res) {
       const { url } = req.query;
       if (!url) {
         console.log('missing url param');
-        res.status(400).json({ error: 'missing url param' });
+        res.status(400).json({ error: 'Missing url param' });
         return;
       }
 
@@ -69,7 +69,7 @@ app.get('/getJpeg', function(req, res) {
       });
       if (response.status >= 300) {
         console.log(await response.text());
-        res.status(400).json({ error: 'video fetch error' });
+        res.status(400).json({ error: 'Video fetch error' });
         return;
       }
 
@@ -85,7 +85,7 @@ app.get('/getJpeg', function(req, res) {
       console.log(getRandomQuote());
     } catch (e) {
       console.log(e);
-      res.status(500);
+      res.status(500).json({ error: 'Unexpected error' });;
     } finally {
       ffmpegLocked = false;
     }

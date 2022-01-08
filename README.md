@@ -2,7 +2,7 @@
 
 README IS OUT OF DATE
 
-(npm i, https://github.com/tensorflow/tfjs/issues/4514#issuecomment-826591952, pip install numpy, https://github.com/tensorflow/tfjs/issues/4514#issuecomment-851040771, https://docs.bazel.build/versions/main/install-os-x.html, bazel clean --expunge, git lfs pull, https://www.npmjs.com/package/@ffmpeg/ffmpeg)
+(npm i, https://www.npmjs.com/package/@ffmpeg/ffmpeg)
 
 A TamperMonkey script for detecting NBA games, so you never need to watch a mid-game commercial again.
 
