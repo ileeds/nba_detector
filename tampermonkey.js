@@ -106,7 +106,9 @@ const createCanvas = (num) => {
 };
 
 const getJpeg = async (url) => {
-    const response = await fetch(`${serverUrl}/getJpeg?url=${encodeURIComponent(url)}`);
+    const response = await fetch(`${serverUrl}/getJpeg?url=${encodeURIComponent(url)}`, {
+        headers: { 'Bypass-Tunnel-Reminder': true }
+    });
     if (response.status !== 200) {
         throw new Error('Invalid getJpeg response');
     }
@@ -329,7 +331,9 @@ const createCanvases = () => {
 };
 
 const initModel = async () => {
-    model = await tf.loadLayersModel(`${serverUrl}/models/${modelPath}/model.json`);
+    model = await tf.loadLayersModel(tf.io.http(`${serverUrl}/models/${modelPath}/model.json`, { requestInit: {
+        headers: { 'Bypass-Tunnel-Reminder': true }
+    }}));
     console.log('Model Loaded');
     if (shouldCaptureScreen) {
         screenVideo = document.createElement('video');
