@@ -18,8 +18,6 @@
   },
   "homepage": "https://github.com/ileeds/nba_detector#readme",
   "dependencies": {
-    "@ffmpeg/core": "^0.10.0",
-    "@ffmpeg/ffmpeg": "^0.10.1",
     "@tensorflow/tfjs-node": "^3.12.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",

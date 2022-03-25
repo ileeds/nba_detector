@@ -2,7 +2,7 @@
 
 README IS OUT OF DATE
 
-(npm i, https://www.npmjs.com/package/@ffmpeg/ffmpeg)
+(npm i, brew install ffmpeg)
 
 A TamperMonkey script for detecting NBA games, so you never need to watch a mid-game commercial again.
 

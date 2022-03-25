@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const fetch = require('node-fetch');
-const { createFFmpeg } = require('@ffmpeg/ffmpeg');
+const { spawnSync } = require('child_process');
+const fs = require('fs');
 const xlsx = require('xlsx');
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
@@ -24,7 +24,6 @@ app.listen(port, () => {
 
 app.use(cors());
 
-const ffmpeg = createFFmpeg({ log: false });
 let ffmpegLocked = false;
 
 app.get('/', (req, res) => {
@@ -41,21 +40,17 @@ app.get('/models/:modelPath/weights.bin', (req, res) => {
   res.download(file);
 });
 
-app.get('/getJpeg', function(req, res) {
+app.get('/getJpeg', function (req, res) {
   (async () => {
     if (ffmpegLocked) {
       res.status(400).json({ error: 'FFmpeg locked' });
       return;
     }
-  
+
     ffmpegLocked = true;
 
     try {
       console.log('starting getJpeg');
-
-      if (!ffmpeg.isLoaded()) {
-        await ffmpeg.load();
-      }
 
       const { url } = req.query;
       if (!url) {
@@ -64,24 +59,11 @@ app.get('/getJpeg', function(req, res) {
         return;
       }
 
-      const response = await fetch(url, {
-        headers: { referer: req.get('Referrer') },
-      });
-      if (response.status >= 300) {
-        console.log(await response.text());
-        res.status(400).json({ error: 'Video fetch error' });
-        return;
-      }
+      const jpgFileName = 'stream.jpg';
+      spawnSync('ffmpeg', ['-headers', `referer: ${req.get('Referrer')}`, '-i', url, '-vframes', '1', '-q:v', '2', '-y', jpgFileName])
+      const jpg = fs.readFileSync(jpgFileName);
 
-      const blob = await response.blob();
-      const data = new Uint8Array(await blob.arrayBuffer());
-    
-      await ffmpeg.FS('writeFile', 'stream.ts', data);
-      await ffmpeg.run('-i', 'stream.ts', 'stream.jpg');
-      const file = await ffmpeg.FS('readFile', 'stream.jpg');
-      await ffmpeg.FS('unlink', 'stream.jpg');
-
-      res.send({ jpg: file });
+      res.send({ jpg });
       console.log(getRandomQuote());
     } catch (e) {
       console.log(e);
