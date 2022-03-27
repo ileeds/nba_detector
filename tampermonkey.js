@@ -15,7 +15,7 @@ const shouldCaptureScreen = false;
 let permaMute = false;
 
 const toggleMute = () => {
-  const elem = document.querySelectorAll("[class*='media-control-icon'][data-volume]")[0];
+  const elem = document.querySelectorAll("[class*='media-control-icon'][data-volume][vjs-mute-control]")[0];
   if (!elem) {
     if (video.volume === 0 || video.muted) {
       video.volume = 1;
